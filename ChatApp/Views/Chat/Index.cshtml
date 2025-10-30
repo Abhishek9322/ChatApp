@@ -1,0 +1,170 @@
+﻿@model IEnumerable<dynamic>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+    body {
+        background-color: #e5ddd5;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .chat-container {
+        width: 100%;
+        max-width: 800px;
+        margin: 30px auto;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        display: flex;
+        flex-direction: column;
+        height: 600px;
+    }
+
+    .chat-header {
+        background-color: #075E54;
+        color: white;
+        padding: 15px;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+        font-weight: bold;
+        font-size: 18px;
+    }
+
+    #chatBox {
+        flex: 1;
+        padding: 15px;
+        background-color: #e5ddd5;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .chat-message {
+        margin: 8px 0;
+        display: flex;
+        flex-direction: column;
+        max-width: 70%;
+        padding: 8px 12px;
+        border-radius: 10px;
+        word-wrap: break-word;
+    }
+
+        .chat-message .sender {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 3px;
+        }
+
+        .chat-message .time {
+            font-size: 0.7rem;
+            color: #666;
+            text-align: right;
+            margin-top: 3px;
+        }
+
+        .chat-message.sent {
+            align-self: flex-end;
+            background-color: #DCF8C6;
+        }
+
+        .chat-message.received {
+            align-self: flex-start;
+            background-color: #fff;
+        }
+
+    .chat-input-area {
+        display: flex;
+        border-top: 1px solid #ccc;
+        padding: 10px;
+        background-color: #f9f9f9;
+        border-bottom-left-radius: 10px;
+        border-bottom-right-radius: 10px;
+    }
+
+        .chat-input-area input {
+            border: none;
+            padding: 10px;
+            border-radius: 20px;
+            flex: 1;
+            background-color: #f1f1f1;
+            margin-right: 10px;
+        }
+
+            .chat-input-area input:focus {
+                outline: none;
+            }
+
+        .chat-input-area button {
+            background-color: #075E54;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+            .chat-input-area button:hover {
+                background-color: #0b7868;
+            }
+</style>
+
+<div class="chat-container">
+    <div class="chat-header">
+        🔒 Secure Real-Time Chat (Group)
+    </div>
+
+    <div id="chatBox">
+        @foreach (var msg in Model)
+        {
+            var isUser = msg.Sender?.ToString() == "You"; // You can modify this logic later
+            <div class="chat-message @(isUser ? "sent" : "received")">
+                <div class="sender">@msg.Sender</div>
+                <div>@msg.PlainText</div>
+                <div class="time">@msg.CreatedAt</div>
+            </div>
+        }
+    </div>
+
+    <form id="sendForm" class="chat-input-area">
+        <input type="text" id="sender" name="Sender" placeholder="Your Name" required />
+        <input type="text" id="message" name="Message" placeholder="Type a message..." required />
+        <button type="submit"><i class="bi bi-send"></i>➤</button>
+    </form>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+<script src="~/js/chat.js"></script>
+<script>
+    document.getElementById("sendForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const sender = document.getElementById("sender").value.trim();
+        const message = document.getElementById("message").value.trim();
+
+        if (!sender || !message) return alert("Please enter sender and message");
+
+        try {
+            const response = await fetch("/Chat/Send", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: new URLSearchParams({ Sender: sender, Message: message })
+            });
+
+            if (response.ok) {
+                document.getElementById("message").value = "";
+            } else {
+                alert("❌ Failed to send message (status " + response.status + ")");
+            }
+        } catch (err) {
+            console.error(err);
+            alert("❌ Network error while sending message");
+        }
+    });
+</script>

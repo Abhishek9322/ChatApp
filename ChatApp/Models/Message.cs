@@ -4,7 +4,7 @@
     {
         public int Id { get; set; }
         public string Sender { get; set; } = null!;
-
+        public string Recipient { get; set; } = null!;
 
         //for storing the secury data and send  it 
         public string CipherTextBase64 { get; set; } = null!;

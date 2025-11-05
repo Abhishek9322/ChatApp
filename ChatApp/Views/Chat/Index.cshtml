@@ -115,6 +115,7 @@
             }
 </style>
 
+
 <div class="chat-container">
     <div class="chat-header">
         🔒 Secure Real-Time Chat (Group)
@@ -134,37 +135,17 @@
 
     <form id="sendForm" class="chat-input-area">
         <input type="text" id="sender" name="Sender" placeholder="Your Name" required />
+        <input id="recipient" name="Recipient" placeholder="Recipient username" />   
         <input type="text" id="message" name="Message" placeholder="Type a message..." required />
         <button type="submit"><i class="bi bi-send"></i>➤</button>
     </form>
 </div>
 
+
+
+@*Client For the Forntend From the javascrpit   *@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
-<script src="~/js/chat.js"></script>
-<script>
-    document.getElementById("sendForm").addEventListener("submit", async (e) => {
-        e.preventDefault();
 
-        const sender = document.getElementById("sender").value.trim();
-        const message = document.getElementById("message").value.trim();
+<script src="~/js/Chat.js"></script>
 
-        if (!sender || !message) return alert("Please enter sender and message");
 
-        try {
-            const response = await fetch("/Chat/Send", {
-                method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: new URLSearchParams({ Sender: sender, Message: message })
-            });
-
-            if (response.ok) {
-                document.getElementById("message").value = "";
-            } else {
-                alert("❌ Failed to send message (status " + response.status + ")");
-            }
-        } catch (err) {
-            console.error(err);
-            alert("❌ Network error while sending message");
-        }
-    });
-</script>

@@ -11,5 +11,6 @@ namespace ChatApp.Data
         }
 
         public DbSet<Message> messages { get; set; } = null!;
+        public DbSet<User> Users { get; set; } = null!;
     }
 }

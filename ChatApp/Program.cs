@@ -1,7 +1,9 @@
 using ChatApp.Data;
+using ChatApp.JWTTOEkn.Rclass;
 using ChatApp.Models;
 using ChatApp.Repository;
 using ChatApp.Service;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,11 +25,16 @@ builder.Services.AddSingleton<IAesGcmEncryptionService>(
 //    _ => new AesGcmEncryptionService(aesKeyB64)
 //);
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddSingleton<IPasswordHasher<ChatApp.Models.User>,PasswordHasher<ChatApp.Models.User>>();
+
+
+builder.Services.AddJwtAuthentication(builder.Configuration);
 
 
 builder.Services.AddSignalR();
 
-
+builder.Services.AddSession();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -43,6 +50,9 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseSession();
+
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(

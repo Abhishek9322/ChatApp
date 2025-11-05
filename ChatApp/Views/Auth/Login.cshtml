@@ -1,0 +1,29 @@
+﻿@model ChatApp.DTOs.LoginRequestDto
+
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+    <script src="~/js/Chat.js"></script>
+</head>
+<body>
+    @Html.AntiForgeryToken()    <!-- <input name="__RequestVerificationToken" value="..."> will be rendered -->
+
+    <div>
+        <input id="loginUser" type="text" placeholder="Username" required />
+        <input id="loginPassword" type="password" placeholder="Password" required />
+        <button onclick="doLogin()">Login</button>
+    </div>
+
+    <div id="chatBox"></div>
+</body>
+</html>
+
+@if (TempData["Success"] != null)
+{
+    <p style="color:green">@TempData["Success"]</p>
+}

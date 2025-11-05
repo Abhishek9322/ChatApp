@@ -3,6 +3,8 @@
     public class SendRequest
     {
         public string Sender { get; set; } = null!;
+
+        public string Recipient { get; set; } = null!;
         public string Message { get; set; } = null!;
     }
 }

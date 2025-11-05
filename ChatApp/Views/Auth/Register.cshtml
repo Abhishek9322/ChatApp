@@ -1,0 +1,21 @@
+﻿@model ChatApp.DTOs.RegisterRequestDto
+
+<h2>Register</h2>
+
+<form asp-action="Register" method="post">
+    <div>
+        <label>Username</label>
+        <input asp-for="UserName" class="form-control" />
+    </div>
+    <div>
+        <label>Password</label>
+        <input asp-for="Password" type="password" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">Register</button>
+</form>
+
+@if (TempData["Success"] != null)
+{
+    <p style="color:green">@TempData["Success"]</p>
+}
+

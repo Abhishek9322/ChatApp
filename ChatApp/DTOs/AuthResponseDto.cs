@@ -1,8 +1,8 @@
-﻿namespace ChatApp.DTOs
-{
-    public class AuthResponseDto
+﻿    namespace ChatApp.DTOs
     {
-        public string Token { get; set; } = null!;
-        public string Username { get; set; } = null!;
+        public class AuthResponseDto
+        {
+            public string Token { get; set; } = null!;
+            public string Username { get; set; } = null!;
+        }
     }
-}

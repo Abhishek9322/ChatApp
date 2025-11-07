@@ -81,7 +81,7 @@ function startSignalRWithToken() {
 }
 
 async function sendMessage() {
-    const sender = sessionStorage.getItem("Username");
+  // const sender = sessionStorage.getItem("Username");
     const recipient = document.getElementById("recipient")?.value?.trim();
     const message = document.getElementById("message")?.value?.trim();
 
@@ -92,41 +92,61 @@ async function sendMessage() {
 
     const token = sessionStorage.getItem("AuthToken");
     if (!token) {
-        alert("You are not logged in!");
+        alert("You are not logged in . Please Login !");
         return;
     }
 
     const formData = new FormData();
-    formData.append("Sender", sender ?? "");
+    // formData.append("Sender", sender ?? "");
     formData.append("Recipient", recipient);
     formData.append("Message", message);
 
-    const response = await fetch("/Chat/Send", {
-        method: "POST",
-        body: formData,
-        headers: {
-            //  this line is required
-            "Authorization": "Bearer " + token
-        }
-    });
+    try {
+        const response = await fetch("/Chat/Send", {
+            method: "POST",
+            body: formData,
+            headers: {
+                //  this line is required
+                "Authorization": "Bearer " + token
+            }
+        });
 
-    if (!response.ok) {
-        const err = await response.text();
-        console.error("Send failed:", response.status, err);
-        alert("Send failed: " + response.status);
-        return;
+
+
+        //problem is hre 
+        if (!response.ok) {
+            const err = await response.text();
+            console.error("Send failed:", response.status, errText);
+            alert("Message Send failed: " + response.status);
+            return;
+        }
+        const data = await response.json();
+        console.log("Message sent:", data);
+        document.getElementById("message").value = "";
+
+        //console.log("Message sent!");
+        //document.getElementById("message").value = "";
+
+
+    } catch (err) {
+        console.error("Error sending message:", err);
+        alter("An Unexpected error occurred while sending message.. ");
     }
 
-    console.log("Message sent!");
-    document.getElementById("message").value = "";
 }
 
 
 
 
 // -------------------- DOM wiring --------------------
+
 document.addEventListener("DOMContentLoaded", () => {
-    // Wire send form if present
+    // start SignalR when on chat page
+    if (document.getElementById("chatBox")) {
+        startSignalRWithToken();
+    }
+
+    // wire send form
     const sendForm = document.getElementById("sendForm");
     if (sendForm) {
         sendForm.addEventListener("submit", async (e) => {
@@ -134,18 +154,33 @@ document.addEventListener("DOMContentLoaded", () => {
             await sendMessage();
         });
     }
-
-    // If this is Chat/Index page, start SignalR using stored token
-    const isChatPage = !!document.getElementById("chatBox");
-    if (isChatPage) {
-        startSignalRWithToken();
-    }
-
-    // optional: wire login form if you use a login form with id="loginForm"
-    const loginForm = document.getElementById("loginForm");
-    if (loginForm) {
-        loginForm.addEventListener("submit", (e) => { e.preventDefault(); doLogin(); });
-    }
 });
+
+
+
+
+
+//document.addEventListener("DOMContentLoaded", () => {
+//    // Wire send form if present 
+//    const sendForm = document.getElementById("sendForm");
+//    if (sendForm) {
+//        sendForm.addEventListener("submit", async (e) => {
+//            e.preventDefault();
+//            await sendMessage();
+//        });
+//    }
+
+//    // If this is Chat/Index page, start SignalR using stored token
+//    const isChatPage = !!document.getElementById("chatBox");
+//    if (isChatPage) {
+//        startSignalRWithToken();
+//    }
+
+//    // optional: wire login form if you use a login form with id="loginForm"
+//    const loginForm = document.getElementById("loginForm");
+//    if (loginForm) {
+//        loginForm.addEventListener("submit", (e) => { e.preventDefault(); doLogin(); });
+//    }
+//});
 
 

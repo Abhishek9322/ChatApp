@@ -47,6 +47,13 @@ namespace ChatApp.JWTTOEkn.Rclass
                 {
                     OnMessageReceived = context =>
                     {
+                        var token = context.Request.Cookies["AuthToken"];
+                        if(!string.IsNullOrWhiteSpace(token))
+                        {
+                            context.Token = token;
+                        }
+
+
                         var accessToken = context.Request.Query["access_token"].FirstOrDefault();
                         if (!string.IsNullOrWhiteSpace(accessToken) && context.HttpContext.Request.Path.StartsWithSegments("/chatHub"))
                         {

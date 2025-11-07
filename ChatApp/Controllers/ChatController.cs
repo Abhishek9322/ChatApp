@@ -7,66 +7,94 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace ChatApp.Controllers
 {
-    
+
+    [Authorize]
     public class ChatController : Controller
     {
 
         private readonly IMessageRepository _repo;
         private readonly IAesGcmEncryptionService _encryption;
         private readonly IHubContext<ChatHub> _hub;
-        public ChatController(IMessageRepository repo,IAesGcmEncryptionService encryption,IHubContext<ChatHub> hub)
+        private readonly IUserRepository _userRepository;
+        public ChatController(IMessageRepository repo,IAesGcmEncryptionService encryption,IHubContext<ChatHub> hub,IUserRepository userRepository)
         {
             _encryption = encryption;
             _repo = repo;
             _hub = hub;
+            _userRepository = userRepository;
         }
 
-        //[Authorize]
+       // [AllowAnonymous]
         [HttpGet]
         public  async Task<IActionResult> Index()
         {
-            var message = await _repo.GetRecentAsync(100);
 
-            var result = message.Select(m => new
-            {
-                m.Id,
-                m.Sender,
-                PlainText = _encryption.DecryptFromBase64(m.CipherTextBase64),
-                m.CreatedAt
+            var username = User.Identity?.Name;    //problem here at time of login it not geting the proper user creadionals that login fails here 
+            if (string.IsNullOrWhiteSpace(username))
+                return Challenge();
 
-            });
+
+            var message = await _repo.GetRecentAsync(username,100);
+
+            var result = message
+                
+                .Where(m=>string.Equals(m.Sender,username, StringComparison.OrdinalIgnoreCase)
+                    ||string.Equals(m.Recipient,username,StringComparison.OrdinalIgnoreCase))
+
+               .Select(m => new
+               {
+                   m.Id,
+                   m.Sender,
+                   PlainText = _encryption.DecryptFromBase64(m.CipherTextBase64),
+                   m.CreatedAt,
+                   m.Recipient
+
+               });
 
             return View(result);
         }
-
-        [Authorize]
+        //[Authorize]
         [HttpPost]
         public async Task<IActionResult> Send([FromForm] SendRequest req)
         {
-
-            var SenderName = User.Identity?.Name;
-            if (string.IsNullOrWhiteSpace(SenderName))
-                return Unauthorized();
-
-            if (string.IsNullOrWhiteSpace(req.Sender) || string.IsNullOrWhiteSpace(req.Recipient) || string.IsNullOrWhiteSpace(req.Message))
-                return BadRequest(new { save = false, error = "sender , recipient and message are required." });
-
-            var cipherBase64 = _encryption.EncryptToBase64(req.Message);
-
-            var message = new Message
+            try
             {
-                Sender = req.Sender,
-                Recipient = req.Recipient,
-                CipherTextBase64 = cipherBase64
-            };
+                var SenderName = User.Identity?.Name;
+                if (string.IsNullOrWhiteSpace(SenderName))
+                    return BadRequest("Unable to determine sender from token.");
 
-            await _repo.SaveEncryptedMessageAsync(message);
+                if (string.IsNullOrWhiteSpace(req.Recipient) || string.IsNullOrWhiteSpace(req.Message))
+                    return BadRequest(new { save = false, error = "sender , recipient and message are required." });
 
-            await _hub.Clients.Group(req.Recipient).SendAsync("ReceiveMessage",req.Sender,req.Message,message.CreatedAt);
+                var recipientExists = await _userRepository.ExistAsync(req.Recipient);
+                if (!recipientExists)
+                    return BadRequest(new { save = false, error = "Recipient does not Exist." });
 
-            await _hub.Clients.Group(req.Sender).SendAsync("ReceiveMessage", req.Sender, req.Message, message.CreatedAt);
 
-            return Ok(new { save = true, id = message.Id });
+                var cipherBase64 = _encryption.EncryptToBase64(req.Message);
+
+                var message = new Message
+                {
+                    Sender =SenderName,     
+                    Recipient = req.Recipient,
+                    CipherTextBase64 = cipherBase64,
+                    CreatedAt = DateTime.UtcNow,
+                };
+
+                await _repo.SaveEncryptedMessageAsync(message);
+
+                await _hub.Clients.Group(req.Recipient)
+                    .SendAsync("ReceiveMessage", req.Sender, req.Message, message.CreatedAt);
+
+                await _hub.Clients.Group(SenderName)
+                    .SendAsync("ReceiveMessage", req.Sender, req.Message, message.CreatedAt);
+
+                return Ok(new { save = true, id = message.Id });
+
+            }catch(Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
     }

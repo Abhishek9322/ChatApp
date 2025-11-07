@@ -5,6 +5,6 @@ namespace ChatApp.Repository
     public interface IMessageRepository
     {
         Task<Message> SaveEncryptedMessageAsync(Message message);
-        Task<IEnumerable<Message>> GetRecentAsync(int count = 50);
+        Task<IEnumerable<Message>> GetRecentAsync(string username ,int count = 50);
     }
 }

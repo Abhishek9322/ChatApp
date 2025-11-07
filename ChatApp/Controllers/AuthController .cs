@@ -95,6 +95,13 @@ namespace ChatApp.Controllers
             HttpContext.Session.SetString("AuthToken", token);
             HttpContext.Session.SetString("Username", user.UserName);
 
+            Response.Cookies.Append("AuthToken", token, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict
+            });
+
             return Json(new {success=true,token=token ,username=user.UserName});
 
         }

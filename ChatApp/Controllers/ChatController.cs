@@ -60,8 +60,8 @@ namespace ChatApp.Controllers
             try
             {
                 var SenderName = User.Identity?.Name;
-                if (string.IsNullOrWhiteSpace(SenderName))
-                    return BadRequest("Unable to determine sender from token.");
+                //if (string.IsNullOrWhiteSpace(SenderName))
+                //    return BadRequest("Unable to determine sender from token.");
 
                 if (string.IsNullOrWhiteSpace(req.Recipient) || string.IsNullOrWhiteSpace(req.Message))
                     return BadRequest(new { save = false, error = "sender , recipient and message are required." });

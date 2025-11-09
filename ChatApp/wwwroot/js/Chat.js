@@ -8,10 +8,11 @@ function getAntiForgeryToken() {
     return inp ? inp.value : null;
 }
 
-// -------------------- login --------------------
+ //-------------------- login --------------------
 async function doLogin() {
     const userInput = document.getElementById("loginUser");
     const passInput = document.getElementById("loginPassword");
+ // const returnUrl = document.getElementById('returnUrl').value || '/Chat/Index';
 
     const userName = userInput?.value.trim();
     const password = passInput?.value.trim();
@@ -21,13 +22,15 @@ async function doLogin() {
         const formData = new FormData();
         formData.append("UserName", userName);
         formData.append("Password", password);
+        //formData.append('returnUrl', returnUrl);
+
         const af = getAntiForgeryToken();
         if (af) formData.append("__RequestVerificationToken", af);
 
         const res = await fetch("/Auth/Login", {
             method: "POST",
             body: formData,
-            credentials: "same-origin"
+            credentials:  "same-origin" 
         });
 
         if (!res.ok) {
@@ -53,6 +56,7 @@ async function doLogin() {
         alert("An unexpected error occurred during login.");
     }
 }
+
 
 
 // -------------------- SignalR setup (call this from Chat/Index DOMContentLoaded) --------------------

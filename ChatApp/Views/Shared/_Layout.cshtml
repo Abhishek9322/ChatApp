@@ -4,52 +4,281 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - ChatApp</title>
+
+    <!-- Bootstrap 5 + Icons -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/ChatApp.styles.css" asp-append-version="true" />
+
+    <style>
+        :root {
+            --sidebar-bg: #1e293b;
+            --sidebar-hover: #334155;
+            --primary: #6366f1;
+            --text-light: #e2e8f0;
+            --text-dark: #1e293b;
+            --bg-main: #f8fafc;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-dark);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 70px;
+            height: 100vh;
+            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+            padding-top: 1.5rem;
+            transition: width 0.3s ease;
+            z-index: 1000;
+            box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            /* 🔹 Rounded edges */
+            border-top-right-radius: 25px;
+            border-bottom-right-radius: 25px;
+        }
+
+            .sidebar:hover {
+                width: 240px;
+                border-top-right-radius: 35px;
+                border-bottom-right-radius: 35px;
+            }
+            .sidebar .logo {
+                text-align: center;
+                margin-bottom: 2rem;
+                color: #fff;
+                font-weight: 700;
+                font-size: 1.5rem;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+                white-space: nowrap;
+                overflow: hidden;
+            }
+
+            .sidebar:hover .logo {
+                opacity: 1;
+            }
+
+        .nav-item {
+            position: relative;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            color: var(--text-light);
+            padding: 1rem 0;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            overflow: hidden;
+            border-left: 4px solid transparent;
+        }
+
+            .nav-link i {
+                width: 70px;
+                text-align: center;
+                font-size: 1.35rem;
+                flex-shrink: 0;
+            }
+
+            .nav-link span {
+                opacity: 0;
+                transition: opacity 0.25s ease;
+                font-weight: 500;
+                font-size: 0.95rem;
+            }
+
+        .sidebar:hover .nav-link span {
+            opacity: 1;
+        }
+
+        .nav-link:hover {
+            background-color: var(--sidebar-hover);
+            color: #fff;
+        }
+
+        .nav-link.active {
+            background-color: rgba(99, 102, 241, 0.15);
+            color: #fff;
+            border-left-color: var(--primary);
+        }
+
+        /* Tooltip (mobile fallback) */
+        .nav-tooltip {
+            position: absolute;
+            left: 80px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #1e293b;
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+            z-index: 10;
+        }
+
+        .nav-item:hover .nav-tooltip {
+            opacity: 1;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 70px;
+            min-height: 100vh;
+            transition: margin-left 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar:hover ~ .main-content {
+            margin-left: 240px;
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 2rem;
+            width: 100%;
+            max-width: none;
+        }
+
+        /* Responsive */
+        <link rel="stylesheet" href="~/css/_GlobalStyle.css" / >
+       
+    </style>
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">ChatApp</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Auth" asp-action="Login">Login</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Auth" asp-action="Register">Register</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
+
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="logo">
+            <i class="fas fa-comment-dots me-2" style="color: #6366f1;"></i> ChatApp
+        </div>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")"
+                   asp-area="" asp-controller="Home" asp-action="Index">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </a>
+                <div class="nav-tooltip">Home</div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link protected-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Chat" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")"
+                   asp-area="" asp-controller="Chat" asp-action="Index">
+                    <i class="fas fa-comments"></i>
+                    <span>Chat</span>
+                </a>
+                <div class="nav-tooltip">Chat</div>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["action"]?.ToString() == "Privacy" ? "active" : "")"
+                   asp-area="" asp-controller="Home" asp-action="Privacy">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Privacy</span>
+                </a>
+                <div class="nav-tooltip">Privacy</div>
+            </li>
+
+            @* Auth Section *@
+            @if (User.Identity.IsAuthenticated)
+            {
+                <!-- ✅ Show Profile and Logout when logged in -->
+                <li class="nav-item">
+                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "User" && ViewContext.RouteData.Values["action"]?.ToString() == "Profile" ? "active" : "")"
+                       asp-area="" asp-controller="User" asp-action="Profile">
+                        <i class="fas fa-user-circle"></i>
+                        <span>@User.Identity.Name</span>  @* show logged-in username *@
+                    </a>
+                    <div class="nav-tooltip">Profile</div>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Auth" asp-action="Logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </a>
+                    <div class="nav-tooltip">Logout</div>
+                </li>
+            }
+            else
+            {
+                <!-- ❌ Show Login and Register when not logged in -->
+                <li class="nav-item">
+                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Auth" && ViewContext.RouteData.Values["action"]?.ToString() == "Login" ? "active" : "")"
+                       asp-area="" asp-controller="Auth" asp-action="Login">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span>Login</span>
+                    </a>
+                    <div class="nav-tooltip">Login</div>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Auth" && ViewContext.RouteData.Values["action"]?.ToString() == "Register" ? "active" : "")"
+                       asp-area="" asp-controller="Auth" asp-action="Register">
+                        <i class="fas fa-user-plus"></i>
+                        <span>Register</span>
+                    </a>
+                    <div class="nav-tooltip">Register</div>
+                </li>
+            }
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="content-area">
             @RenderBody()
-        </main>
+        </div>
+
+        <!-- Optional Footer (uncomment if needed) -->
+        @* <footer class="border-top footer text-muted py-3 mt-auto bg-white">
+            <div class="container">
+                &copy; 2025 - ChatApp - <a asp-controller="Home" asp-action="Privacy">Privacy</a>
+            </div>
+        </footer> *@
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - ChatApp - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
+    <!-- Scripts -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script>
+        // Example: Replace this with your actual login check logic
+        // You can check sessionStorage, cookie, or JWT token
+        const isUserLoggedIn = '@User.Identity.IsAuthenticated'.toLowerCase() === 'true';
+
+        document.querySelectorAll('.protected-link').forEach(link => {
+            link.addEventListener('click', function (e) {
+                if (!isUserLoggedIn) {
+                    e.preventDefault();
+                    window.location.href = '/Auth/Login';
+                }
+            });
+        });
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

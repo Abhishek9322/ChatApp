@@ -54,6 +54,16 @@ app.UseSession();
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.Use(async (context, next) =>
+{
+    await next();
+
+    if (context.Response.StatusCode == 401 && !context.Response.HasStarted)
+    {
+        var returnUrl = Uri.EscapeDataString(context.Request.Path + context.Request.QueryString);
+        context.Response.Redirect($"/Auth/Login?returnUrl={returnUrl}");
+    }
+});
 
 app.MapControllerRoute(
     name: "default",
